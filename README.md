@@ -313,14 +313,14 @@ kubectl apply -f ingress.yaml
 ### 3. Verify the Application
 - Access the ExpressJS application via `http://<node-ip>:32000`.
 - Use the basic authentication credentials (`user` and `pass`) to log in.
-- **Authentication**: ![Auth](auth.png)
-- **Application Access**: ![Access](access.png)
+- **Authentication**: ![Auth](assets/auth.png)
+- **Application Access**: ![Access](assets/access.png)
 
 
 ### 4. Verify the Database
 - Ensure that the MongoDB database is running and accessible from the ExpressJS application.
-- **Database Overview**: ![database](db-overview.png)
-- **Database Details**: ![database](database.png)
+- **Database Overview**: ![database](assets/db-overview.png)
+- **Database Details**: ![database](assets/database.png)
 
 ---
 
