@@ -4,34 +4,34 @@
   Deploying a 2-tier application on a Kubernetes cluster. The application consists of an ExpressJS frontend and a MongoDB backend. The MongoDB instance is secured with authentication, and the ExpressJS application is configured to connect to the MongoDB database. Both components are deployed as separate pods within the Kubernetes cluster. This application also includes enhancements such as persistent storage, security with Kubernetes Secrets, health checks, Horizontal Pod Autoscaler (HPA), and Ingress
 
 ```plaintext
-        +---------------------------------------------------------------+
-        |                         Kubernetes Cluster                    |
-        |                                                               |
-        |  +------------------------+        +---------------------+    |
-        |  |  Namespace: ahmedhemida|        |  Namespace: default |    |
-        |  +------------------------+        +---------------------+    |
-        |                                                               |
-        |  +---------------------------------------------------------+  |
-        |  |                         Ingress                         |  |
-        |  |  - Host: mekn-app.ahmedhemida.com                       |  |
-        |  |  - Routes traffic to mongo-express Service              |  |
-        |  +---------------------------------------------------------+  |
-        |                                                               |
-        |  +----------------------+        +-------------------------+  |
-        |  |  ExpressJS App       |        |  MongoDB Database       |  |
-        |  |  - Deployment        |        |  - Deployment           |  |
-        |  |  - Service: NodePort |        |  - Service: ClusterIP   |  |
-        |  |  - Liveness/Readiness|        |  - PersistentVolume     |  |
-        |  |  - HPA (Auto-scaling)|        |  - PersistentVolumeClaim|  |
-        |  +----------------------+        +-------------------------+  |
-        |                                                               |
-        |  +---------------------------------------------------------+  |
-        |  |                         Secrets                         |  |
-        |  |  - MongoDB Credentials (user/pass)                      |  |
-        |  |  - ExpressJS Basic Auth (user/pass)                     |  |
-        |  +---------------------------------------------------------+  |
-        |                                                               |
-        +---------------------------------------------------------------+
+            +---------------------------------------------------------------+
+            |                         Kubernetes Cluster                    |
+            |                                                               |
+            |  +------------------------+        +---------------------+    |
+            |  |  Namespace: ahmedhemida|        |  Namespace: default |    |
+            |  +------------------------+        +---------------------+    |
+            |                                                               |
+            |  +---------------------------------------------------------+  |
+            |  |                         Ingress                         |  |
+            |  |  - Host: mekn-app.ahmedhemida.com                       |  |
+            |  |  - Routes traffic to mongo-express Service              |  |
+            |  +---------------------------------------------------------+  |
+            |                                                               |
+            |  +----------------------+        +-------------------------+  |
+            |  |  ExpressJS App       |        |  MongoDB Database       |  |
+            |  |  - Deployment        |        |  - Deployment           |  |
+            |  |  - Service: NodePort |        |  - Service: ClusterIP   |  |
+            |  |  - Liveness/Readiness|        |  - PersistentVolume     |  |
+            |  |  - HPA (Auto-scaling)|        |  - PersistentVolumeClaim|  |
+            |  +----------------------+        +-------------------------+  |
+            |                                                               |
+            |  +---------------------------------------------------------+  |
+            |  |                         Secrets                         |  |
+            |  |  - MongoDB Credentials (user/pass)                      |  |
+            |  |  - ExpressJS Basic Auth (user/pass)                     |  |
+            |  +---------------------------------------------------------+  |
+            |                                                               |
+            +---------------------------------------------------------------+
 ```
 ## Steps
 
@@ -257,7 +257,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: mekn-backend
-  minReplicas: 1
+  minReplicas: 2
   maxReplicas: 5
   targetCPUUtilizationPercentage: 80
 ```
@@ -284,6 +284,7 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
+  ingressClassName: nginx
   rules:
     - host: mekn-app.ahmedhemida.com
       http:
@@ -303,6 +304,10 @@ kubectl apply -f ingress.yaml
 ```
 
 ---
+Now Let's verify that everything is presnet and works:
+![Get All](assets/get-all.png)
+
+---
 
 **Notes**:
 - Ensure that the MongoDB credentials (`user` and `pass`) are correctly passed to the ExpressJS application for database connectivity.
@@ -310,14 +315,24 @@ kubectl apply -f ingress.yaml
 
 ---
 
-### 3. Verify the Application
-- Access the ExpressJS application via `http://<node-ip>:32000`.
+### 6. Update Local DNS for Testing
+To test the Ingress locally, add the following line to your `/etc/hosts` file:
+```sh
+# Get the ingress IP
+kubectl get ingress
+# Add the IP under the Adress
+<Ingress-IP> mekn-app.ahmedhemida.com
+```
+---
+
+### 7. Verify the Application
+- Access the application via https://mekn-app.ahmedhemida.com.
 - Use the basic authentication credentials (`user` and `pass`) to log in.
 - **Authentication**: ![Auth](assets/auth.png)
-- **Application Access**: ![Access](assets/access.png)
+- **Application Access**: ![Access](assets/ingress.png)
 
 
-### 4. Verify the Database
+### 8. Verify the Database
 - Ensure that the MongoDB database is running and accessible from the ExpressJS application.
 - **Database Overview**: ![database](assets/db-overview.png)
 - **Database Details**: ![database](assets/database.png)
