@@ -24,20 +24,38 @@ spec:
           ports:
             - containerPort: 27017
           env:
-            - name: MONGO_INITDB_ROOT_USERNAME
+            - name: MONGODB_INITDB_ROOT_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: mekn-secrets
                   key: mongo-user
-            - name: MONGO_INITDB_ROOT_PASSWORD
+            - name: MONGODB_INITDB_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: mekn-secrets
                   key: mongo-pass
           volumeMounts:
             - name: mongo-storage
-              mountPath: /data/db
+              mountPath: /ahmedhemida/db
       volumes:
         - name: mongo-storage
           persistentVolumeClaim:
             claimName: mongo-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service
+  namespace: ahmedhemida
+  labels:
+    app: mekn
+    tier: database
+spec:
+  type: ClusterIP
+  selector:
+    app: mekn
+    tier: database
+  ports:
+    - port: 27017
+      targetPort: 27017
